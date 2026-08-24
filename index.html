@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MedPhyGraph | ECCV 2026</title>
+  <meta name="description" content="MedPhyGraph: Counterfactual Support-Graph Maintenance for Dynamic Built-Environment Digital Twins. ECCV 2026, MCRLab, University of Ottawa." />
+  <meta property="og:title" content="MedPhyGraph — ECCV 2026" />
+  <meta property="og:description" content="Counterfactual Support-Graph Maintenance for Dynamic Built-Environment Digital Twins" />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <nav class="site-nav" aria-label="Primary">
+    <div class="wrap">
+      <a class="brand" href="#top">MedPhyGraph</a>
+      <ul class="nav-links">
+        <li><a href="#abstract">Abstract</a></li>
+        <li><a href="#pipeline">Pipeline</a></li>
+        <li><a href="#demo">Demo</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#supplementary">Supplementary Material</a></li>
+        <li><a href="#citation">Citation</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="wrap">
+      <div class="logo-row" aria-label="Venue and institutions">
+        <img class="logo-mcr" src="assets/MCR_Logo-1024x608.png" alt="MCRLab" />
+        <img class="logo-eccv" src="assets/ECCV-2026.jpeg" alt="ECCV 2026" />
+        <img class="logo-uottawa" src="assets/University-of-Ottawa.png" alt="University of Ottawa" />
+      </div>
+
+      <p class="hero-brand">MedPhyGraph</p>
+      <h1 class="hero-title">
+        Counterfactual Support-Graph Maintenance for Dynamic Built-Environment Digital Twins
+      </h1>
+
+      <div class="authors">
+        <a href="https://github.com/kamranghz" target="_blank" rel="noopener">Kamran Gholizadeh HamlAbadi</a>
+        <a href="mailto:mvahd053@uottawa.ca">Monica Vahdati</a>
+        <a href="https://github.com/elsaddik7" target="_blank" rel="noopener">Abdulmotaleb El Saddik</a>
+      </div>
+      <p class="affiliation">
+        MCRLab, School of Electrical Engineering and Computer Science,<br />
+        University of Ottawa, Ottawa, Ontario, Canada
+      </p>
+
+      <div class="actions" aria-label="Resources">
+        <span class="btn btn-soon">Paper <span class="tag">Coming soon</span></span>
+        <a class="btn btn-dark" href="https://github.com/kamranghz/medphygraph" target="_blank" rel="noopener">Code</a>
+        <a class="btn" href="https://huggingface.co/MedPhyGraph/CF-SupportNet" target="_blank" rel="noopener">Model</a>
+        <a class="btn" href="https://huggingface.co/datasets/MedPhyGraph/support-graph-data" target="_blank" rel="noopener">Dataset</a>
+        <a class="btn" href="#citation">BibTeX</a>
+      </div>
+
+      <div class="stats" aria-label="Key results">
+        <div class="stat"><strong>1.000</strong><span>Core Transfer Dyn-F1</span></div>
+        <div class="stat"><strong>0.998</strong><span>Expanded Transfer Dyn-F1</span></div>
+        <div class="stat"><strong>217</strong><span>Transfers / 19 templates</span></div>
+        <div class="stat"><strong>0</strong><span>Structural violations</span></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="abstract">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Abstract</h2>
+        </div>
+        <div class="abstract">
+          <p>
+            Dynamic digital twins must update semantic relations and geometry when objects change.
+            We present <strong>MedPhyGraph</strong>, a framework for maintaining <em>SupportedBy</em> graphs across
+            adjacent digital-twin states. <strong>CF-SupportNet</strong> scores candidate edges using static geometry
+            and counterfactual evidence from analytic host-removal rollouts. Deterministic state and transition
+            consistency enforce graph validity and identify supporter changes. MedPhyGraph operates downstream of
+            perception on structured object states and requires neither ground-truth destinations nor transfer
+            metadata at inference. We evaluate MedPhyGraph in controlled healthcare digital-twin environments
+            realized and visualized using NVIDIA Isaac for Healthcare assets; these assets are not model inputs or
+            label sources. Under the controlled core protocol, MedPhyGraph achieves Transition-Macro, Pooled Delta
+            Micro, and Transfer Dyn-F1 of <strong>1.000</strong>. Across <strong>217</strong> transfers and
+            <strong>19</strong> semantic templates, it recovers all required transfer edges and reaches pooled
+            Transfer Dyn-F1 of <strong>0.998</strong>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pipeline">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Pipeline</h2>
+          <p>
+            Candidate edges are scored by CF-SupportNet from static geometry and analytic AABB host-removal evidence.
+            State Consistency and Union-Based Transition-Aware Consistency update the support graph across adjacent states.
+          </p>
+        </div>
+
+        <figure class="figure-wide">
+          <div class="frame ratio-16x9">
+            <img
+              src="assets/fig_01_pipeline.png"
+              alt="MedPhyGraph pipeline overview from the paper"
+              width="2400"
+              height="716"
+              loading="lazy"
+            />
+          </div>
+          <figcaption>
+            Figure 1. Overview of MedPhyGraph. Rendered images, ground-truth edges, operation labels, and authored
+            transfer destinations are not used at inference.
+            <a href="assets/fig_01_pipeline.pdf" target="_blank" rel="noopener">PDF</a>
+          </figcaption>
+        </figure>
+
+        <div class="steps">
+          <div class="step">
+            <span class="n">1</span>
+            <h3>Candidate generation</h3>
+            <p>Geometric and structural cues define a plausible subject–host search space without GT edges.</p>
+          </div>
+          <div class="step">
+            <span class="n">2</span>
+            <h3>CF-SupportNet</h3>
+            <p>GRU + geometry fusion scores each candidate from analytic host-removal trajectories.</p>
+          </div>
+          <div class="step">
+            <span class="n">3</span>
+            <h3>Transition consistency</h3>
+            <p>Dual-state scoring, previous-host decline, Direct-Support Gate, and graph refinement.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Demo</h2>
+          <p>
+            Isaac Sim clips visualize a tray support transfer in a healthcare digital-twin room.
+            Renders are visual context only — not model inputs or training labels.
+          </p>
+        </div>
+
+        <div class="demo-grid">
+          <div class="media">
+            <video controls playsinline preload="metadata">
+              <source src="assets/Hero-Camera.mp4" type="video/mp4" />
+            </video>
+            <div class="media-cap">
+              <h3>Isaac Sim — wide room view</h3>
+              <p>
+                Hero camera over the operating / procedure room layout while the tray moves from the cabinet area
+                toward the side table beside the monitor cart.
+              </p>
+            </div>
+          </div>
+
+          <div class="media">
+            <video controls playsinline preload="metadata">
+              <source src="assets/Demo-Camera.mp4" type="video/mp4" />
+            </video>
+            <div class="media-cap">
+              <h3>Isaac Sim — transfer close-up</h3>
+              <p>
+                Demo camera focused on the support transfer: the tray leaves the previous host surface and settles
+                on the destination support used by MedPhyGraph evaluation.
+              </p>
+            </div>
+          </div>
+
+          <div class="media full">
+            <video controls playsinline preload="metadata">
+              <source src="assets/graph_update.mp4" type="video/mp4" />
+            </video>
+            <div class="media-cap">
+              <h3>Support-graph update</h3>
+              <p>
+                Corresponding graph edit after transition-aware inference: remove the previous
+                <em>SupportedBy</em> edge and add the new host relation for the transferred subject.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="results">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Results</h2>
+          <p>
+            Support-graph recovery and adjacent-state maintenance on Procedural Scenes and Isaac for Healthcare Scenes,
+            with Isaac as the primary setting unless noted otherwise. Primary results use the frozen inference policy
+            with observation ratio ρ=1.0 and seed 0.
+          </p>
+        </div>
+
+        <div class="metrics">
+          <div class="metric"><strong>1.000</strong><span>Transition-Macro Dyn-F1 (Isaac / Procedural core)</span></div>
+          <div class="metric"><strong>1.000</strong><span>Transfer Dyn-F1 (core protocol)</span></div>
+          <div class="metric"><strong>0.997±0.001</strong><span>Expanded Transfer Dyn-F1 (seeds 0–4)</span></div>
+        </div>
+
+        <h3 class="table-title">Results on the expanded 217-case transfer suite</h3>
+        <p class="table-lead">
+          Required success indicates recovery of both required transfer edges; additional errors are reflected in the pooled metrics.
+          Best and second-best results are highlighted.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Req. Success</th>
+                <th>Transfer</th>
+                <th>Add</th>
+                <th>Remove</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Geometry Rule</td>
+                <td class="second">0.862</td>
+                <td class="second">0.931</td>
+                <td class="best">1.000</td>
+                <td class="second">0.862</td>
+              </tr>
+              <tr>
+                <td>Logistic Regression</td>
+                <td>0.654</td>
+                <td>0.791</td>
+                <td>0.791</td>
+                <td>0.791</td>
+              </tr>
+              <tr>
+                <td>Random Forest</td>
+                <td>0.000</td>
+                <td>0.000</td>
+                <td>0.000</td>
+                <td>0.000</td>
+              </tr>
+              <tr>
+                <td>MLP</td>
+                <td>0.000</td>
+                <td>0.000</td>
+                <td>0.000</td>
+                <td>0.000</td>
+              </tr>
+              <tr>
+                <td>CF-SupportNet + SC</td>
+                <td>0.000</td>
+                <td>0.000</td>
+                <td>0.000</td>
+                <td>0.000</td>
+              </tr>
+              <tr class="ours">
+                <td>MedPhyGraph</td>
+                <td class="best">1.000</td>
+                <td class="best">0.998</td>
+                <td class="best">1.000</td>
+                <td class="best">0.995</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="table-title">Complete dynamic results on Isaac for Healthcare Scenes</h3>
+        <p class="table-lead">Under the full transition operator and verified operation-consistent targets.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Trans-Macro</th>
+                <th>Pooled Micro</th>
+                <th>Add</th>
+                <th>Remove</th>
+                <th>Transfer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Geometry Rule</td>
+                <td>0.583</td>
+                <td>0.600</td>
+                <td>1.000</td>
+                <td>0.333</td>
+                <td class="second">0.667</td>
+              </tr>
+              <tr>
+                <td>Logistic Regression</td>
+                <td class="second">0.833</td>
+                <td class="second">0.846</td>
+                <td>1.000</td>
+                <td>1.000</td>
+                <td>0.333</td>
+              </tr>
+              <tr>
+                <td>Random Forest</td>
+                <td>0.750</td>
+                <td>0.750</td>
+                <td>1.000</td>
+                <td>1.000</td>
+                <td>0.000</td>
+              </tr>
+              <tr>
+                <td>MLP</td>
+                <td>0.601</td>
+                <td>0.545</td>
+                <td>0.606</td>
+                <td>0.900</td>
+                <td>0.000</td>
+              </tr>
+              <tr class="ours">
+                <td>MedPhyGraph</td>
+                <td class="best">1.000</td>
+                <td class="best">1.000</td>
+                <td>1.000</td>
+                <td>1.000</td>
+                <td class="best">1.000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="table-title">Component analysis on Isaac for Healthcare Scenes under the core protocol</h3>
+        <p class="table-lead">
+          Viol.: mean structural violations; T-Mac.: Transition-Macro Dyn-F1.
+          Best transfer results and the strongest partial configuration are highlighted.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Configuration</th>
+                <th>Viol.</th>
+                <th>T-Mac.</th>
+                <th>Transfer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Independent CF-SupportNet</td>
+                <td>1.361</td>
+                <td>0.729</td>
+                <td>0.556</td>
+              </tr>
+              <tr>
+                <td>+ State Consistency</td>
+                <td>0.000</td>
+                <td>0.750</td>
+                <td>0.000</td>
+              </tr>
+              <tr>
+                <td>Union rescoring only</td>
+                <td>0.000</td>
+                <td>0.750</td>
+                <td>0.000</td>
+              </tr>
+              <tr>
+                <td>Direct-Support Gate only</td>
+                <td>0.000</td>
+                <td>0.712</td>
+                <td class="second">0.778</td>
+              </tr>
+              <tr>
+                <td>Union and Gate</td>
+                <td>0.000</td>
+                <td>0.750</td>
+                <td>0.000</td>
+              </tr>
+              <tr class="ours">
+                <td>MedPhyGraph</td>
+                <td>0.000</td>
+                <td class="best">1.000</td>
+                <td class="best">1.000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="table-title">Figures</h3>
+        <div class="figures-grid">
+          <figure class="figure-wide span-2">
+            <div class="frame natural">
+              <img
+                src="assets/fig03_method_operation_heatmap.png"
+                alt="Method-by-operation dynamic performance on Procedural and Isaac for Healthcare Scenes"
+                width="1758"
+                height="782"
+                loading="lazy"
+              />
+            </div>
+            <figcaption>
+              Figure 3. Method-by-operation dynamic performance on Procedural and Isaac for Healthcare Scenes under the
+              core 60-transition protocol (15 eligible support transfers). Methods differ primarily on support
+              transfer rather than ordinary addition or removal. Complete operation-level results are reported in the
+              Supplementary Material.
+              <a href="assets/fig03_method_operation_heatmap.pdf" target="_blank" rel="noopener">PDF</a>
+            </figcaption>
+          </figure>
+
+          <figure class="figure-wide">
+            <div class="frame natural">
+              <img
+                src="assets/figS01_refinement_ablation.png"
+                alt="Isaac refinement analysis under the frozen core protocol"
+                width="1205"
+                height="696"
+                loading="lazy"
+              />
+            </div>
+            <figcaption>
+              Figure S1. Isaac refinement analysis under the frozen core protocol. State Consistency removes structural
+              violations, while complete transition-aware selection is required for reliable supporter replacement.
+              Exact values are reported in the Supplementary Material.
+              <a href="assets/figS01_refinement_ablation.pdf" target="_blank" rel="noopener">PDF</a>
+            </figcaption>
+          </figure>
+
+          <figure class="figure-wide">
+            <div class="frame natural">
+              <img
+                src="assets/figS02_bootstrap_forest.png"
+                alt="Paired bootstrap differences with 95 percent confidence intervals"
+                width="1180"
+                height="1011"
+                loading="lazy"
+              />
+            </div>
+            <figcaption>
+              Figure S2. Paired bootstrap differences (MedPhyGraph minus comparator) with 95% confidence intervals from
+              10,000 seed-0 replicates using base-scene resampling. Columns show Procedural and Isaac for Healthcare
+              Scenes; rows show Transition-Macro, Pooled Delta Micro, and Transfer Dyn-F1.
+              <a href="assets/figS02_bootstrap_forest.pdf" target="_blank" rel="noopener">PDF</a>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="supplementary">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Supplementary Material</h2>
+          <p>
+            Complete static and dynamic baselines, component matrices, multi-seed stability analysis,
+            evidence-channel diagnostics, and paired bootstrap comparisons.
+          </p>
+        </div>
+
+        <div class="tabs" data-tabs>
+          <div class="tab-list" role="tablist" aria-label="Supplementary Material">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="inventory">Inventory</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="static">Static</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="dynamic">Dynamic</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="components">Components</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="stability">Stability</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="bootstrap">Bootstrap</button>
+          </div>
+
+          <!-- Inventory -->
+          <div class="tab-panel is-active" data-panel="inventory">
+            <article class="table-card">
+              <header>
+                <h3>Core and expanded evaluation inventories</h3>
+              </header>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Quantity</th><th>Core</th><th>Expanded</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Base layouts / scene states</td><td>30 / 90</td><td>—</td></tr>
+                    <tr><td>Dynamic transitions</td><td>60</td><td>—</td></tr>
+                    <tr><td>Eligible transfers</td><td>15</td><td>217</td></tr>
+                    <tr><td>Procedural / Isaac transfers</td><td>9 / 6</td><td>136 / 81</td></tr>
+                    <tr><td>Semantic templates</td><td>2</td><td>19</td></tr>
+                    <tr><td>Ambiguous / invalid transfers</td><td>0 / 0</td><td>0 / 0</td></tr>
+                    <tr><td>Destination metadata at inference</td><td>none</td><td>none</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="table-card">
+              <header>
+                <h3>Candidate-availability stress test on the expanded 217-case suite using MedPhyGraph</h3>
+              </header>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Condition</th><th>Required success</th><th>Transfer Dyn-F1</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr class="ours"><td>Native candidates</td><td>217/217</td><td class="best">0.998</td></tr>
+                    <tr><td>Destination edge removed</td><td>0/217</td><td>0.000</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+
+          <!-- Static -->
+          <div class="tab-panel" data-panel="static" hidden>
+            <div class="table-grid-2">
+              <article class="table-card">
+                <header>
+                  <h3>Complete static results on Procedural Scenes after State Consistency</h3>
+                </header>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr><th>Method</th><th>Pooled GE-F1</th><th>Scene-Macro</th><th>Precision</th><th>Viol.</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Geometry Rule</td><td>0.805</td><td>0.828</td><td>0.884</td><td>0.000</td></tr>
+                      <tr><td>Logistic Regression</td><td class="best">0.974</td><td class="best">0.979</td><td>1.000</td><td>0.000</td></tr>
+                      <tr><td>Random Forest</td><td class="best">0.974</td><td class="best">0.979</td><td>1.000</td><td>0.000</td></tr>
+                      <tr><td>MLP</td><td class="best">0.974</td><td class="best">0.979</td><td>1.000</td><td>0.000</td></tr>
+                      <tr><td>CF-SupportNet + SC</td><td class="best">0.974</td><td class="best">0.979</td><td>1.000</td><td>0.000</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+
+              <article class="table-card">
+                <header>
+                  <h3>Complete static results on Isaac for Healthcare Scenes after State Consistency</h3>
+                </header>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr><th>Method</th><th>Pooled GE-F1</th><th>Scene-Macro</th><th>Precision</th><th>Viol.</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Geometry Rule</td><td>0.788</td><td>0.795</td><td>0.883</td><td>0.000</td></tr>
+                      <tr><td>Logistic Regression</td><td class="best">0.932</td><td class="best">0.938</td><td>1.000</td><td>0.000</td></tr>
+                      <tr><td>Random Forest</td><td class="second">0.915</td><td class="second">0.923</td><td>1.000</td><td>0.000</td></tr>
+                      <tr><td>MLP</td><td>0.883</td><td>0.892</td><td>0.965</td><td>0.000</td></tr>
+                      <tr><td>CF-SupportNet + SC</td><td class="second">0.915</td><td class="second">0.923</td><td>1.000</td><td>0.000</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="table-note">MedPhyGraph full-population static GE-F1: Procedural 0.957 (n=54), Isaac 0.899 (n=36).</p>
+              </article>
+            </div>
+          </div>
+
+          <!-- Dynamic -->
+          <div class="tab-panel" data-panel="dynamic" hidden>
+            <div class="table-grid-2">
+              <article class="table-card">
+                <header>
+                  <h3>Complete dynamic results on Procedural Scenes</h3>
+                </header>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr><th>Method</th><th>T-Mac.</th><th>Pooled</th><th>Add</th><th>Remove</th><th>Transfer</th><th>False NT</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Geometry Rule</td><td>0.528</td><td>0.600</td><td>1.000</td><td>0.111</td><td class="second">0.889</td><td>0</td></tr>
+                      <tr><td>Logistic Regression</td><td class="second">0.944</td><td class="second">0.953</td><td>1.000</td><td>1.000</td><td>0.778</td><td>0</td></tr>
+                      <tr><td>Random Forest</td><td>0.750</td><td>0.750</td><td>1.000</td><td>1.000</td><td>0.000</td><td>0</td></tr>
+                      <tr><td>MLP</td><td>0.750</td><td>0.750</td><td>1.000</td><td>1.000</td><td>0.000</td><td>0</td></tr>
+                      <tr class="ours"><td>MedPhyGraph</td><td class="best">1.000</td><td class="best">1.000</td><td>1.000</td><td>1.000</td><td class="best">1.000</td><td>0</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+
+              <article class="table-card">
+                <header>
+                  <h3>Complete dynamic results on Isaac for Healthcare Scenes</h3>
+                </header>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr><th>Method</th><th>T-Mac.</th><th>Pooled</th><th>Add</th><th>Remove</th><th>Transfer</th><th>False NT</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Geometry Rule</td><td>0.583</td><td>0.600</td><td>1.000</td><td>0.333</td><td class="second">0.667</td><td>0</td></tr>
+                      <tr><td>Logistic Regression</td><td class="second">0.833</td><td class="second">0.846</td><td>1.000</td><td>1.000</td><td>0.333</td><td>0</td></tr>
+                      <tr><td>Random Forest</td><td>0.750</td><td>0.750</td><td>1.000</td><td>1.000</td><td>0.000</td><td>0</td></tr>
+                      <tr><td>MLP</td><td>0.601</td><td>0.545</td><td>0.606</td><td>0.900</td><td>0.000</td><td>0</td></tr>
+                      <tr class="ours"><td>MedPhyGraph</td><td class="best">1.000</td><td class="best">1.000</td><td>1.000</td><td>1.000</td><td class="best">1.000</td><td>0</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <!-- Components -->
+          <div class="tab-panel" data-panel="components" hidden>
+            <article class="table-card">
+              <header>
+                <h3>Complete inference-component analysis on Isaac for Healthcare Scenes under the core protocol</h3>
+                <p><span class="on">✓</span> enabled · <span class="off">✗</span> disabled · SC: State Consistency; Un.: union dual-state scoring; Dec.: previous-host decline; Sw.: gain/switch selection; Ga.: Direct-Support Gate; Ref.: post-selection refinement</p>
+              </header>
+              <div class="table-wrap">
+                <table class="table-compact">
+                  <thead>
+                    <tr>
+                      <th>Configuration</th>
+                      <th>SC</th><th>Un.</th><th>Dec.</th><th>Sw.</th><th>Ga.</th><th>Ref.</th>
+                      <th>Viol.</th><th>T-Mac.</th><th>P-Mic.</th><th>Transfer</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Independent CF-SupportNet</td>
+                      <td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td>
+                      <td>1.361</td><td>0.729</td><td>0.686</td><td>0.556</td>
+                    </tr>
+                    <tr>
+                      <td>+ State Consistency</td>
+                      <td class="on">✓</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td>
+                      <td>0.000</td><td>0.750</td><td>0.750</td><td>0.000</td>
+                    </tr>
+                    <tr>
+                      <td>Union rescoring only</td>
+                      <td class="off">✗</td><td class="on">✓</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="on">✓</td>
+                      <td>0.000</td><td>0.750</td><td>0.750</td><td>0.000</td>
+                    </tr>
+                    <tr>
+                      <td>Direct-Support Gate only</td>
+                      <td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="on">✓</td><td class="on">✓</td>
+                      <td>0.000</td><td>0.712</td><td>0.625</td><td class="second">0.778</td>
+                    </tr>
+                    <tr>
+                      <td>Union and Gate</td>
+                      <td class="off">✗</td><td class="on">✓</td><td class="off">✗</td><td class="off">✗</td><td class="on">✓</td><td class="on">✓</td>
+                      <td>0.000</td><td>0.750</td><td>0.750</td><td>0.000</td>
+                    </tr>
+                    <tr class="ours">
+                      <td>MedPhyGraph</td>
+                      <td class="on">✓</td><td class="on">✓</td><td class="on">✓</td><td class="on">✓</td><td class="on">✓</td><td class="on">✓</td>
+                      <td>0.000</td><td class="best">1.000</td><td class="best">1.000</td><td class="best">1.000</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <div class="table-grid-2">
+              <article class="table-card">
+                <header><h3>Inference-component analysis on the expanded 217-case suite</h3></header>
+                <div class="table-wrap">
+                  <table class="table-compact">
+                    <thead>
+                      <tr>
+                        <th>Configuration</th>
+                        <th>SC</th><th>Un.</th><th>Dec.</th><th>Sw.</th><th>Ga.</th><th>Ref.</th>
+                        <th>Viol.</th><th>T-Mac.</th><th>P-Mic.</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Independent CF</td>
+                        <td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td>
+                        <td>2.281</td><td>0.642</td><td>0.635</td>
+                      </tr>
+                      <tr>
+                        <td>+ State Consistency</td>
+                        <td class="on">✓</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td>
+                        <td>0.000</td><td>0.000</td><td>0.000</td>
+                      </tr>
+                      <tr>
+                        <td>Union only</td>
+                        <td class="off">✗</td><td class="on">✓</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="on">✓</td>
+                        <td>0.000</td><td>0.000</td><td>0.000</td>
+                      </tr>
+                      <tr>
+                        <td>Gate only</td>
+                        <td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="on">✓</td><td class="on">✓</td>
+                        <td>0.000</td><td class="second">0.756</td><td class="second">0.682</td>
+                      </tr>
+                      <tr>
+                        <td>Union + Gate</td>
+                        <td class="off">✗</td><td class="on">✓</td><td class="off">✗</td><td class="off">✗</td><td class="on">✓</td><td class="on">✓</td>
+                        <td>0.000</td><td>0.000</td><td>0.000</td>
+                      </tr>
+                      <tr class="ours">
+                        <td>MedPhyGraph</td>
+                        <td class="on">✓</td><td class="on">✓</td><td class="on">✓</td><td class="on">✓</td><td class="on">✓</td><td class="on">✓</td>
+                        <td>0.000</td><td class="best">0.998</td><td class="best">0.998</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+
+              <article class="table-card">
+                <header><h3>Inference-component analysis on Procedural Scenes</h3></header>
+                <div class="table-wrap">
+                  <table class="table-compact">
+                    <thead>
+                      <tr>
+                        <th>Configuration</th>
+                        <th>SC</th><th>Un.</th><th>Dec.</th><th>Sw.</th><th>Ga.</th><th>Ref.</th>
+                        <th>Viol.</th><th>T-Mac.</th><th>P-Mic.</th><th>Transfer</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Independent CF</td>
+                        <td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td>
+                        <td>1.463</td><td>0.759</td><td>0.727</td><td>0.630</td>
+                      </tr>
+                      <tr>
+                        <td>+ State Consistency</td>
+                        <td class="on">✓</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td>
+                        <td>0.000</td><td>0.750</td><td>0.750</td><td>0.000</td>
+                      </tr>
+                      <tr>
+                        <td>Union only</td>
+                        <td class="off">✗</td><td class="on">✓</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="on">✓</td>
+                        <td>0.000</td><td>0.750</td><td>0.750</td><td>0.000</td>
+                      </tr>
+                      <tr>
+                        <td>Gate only</td>
+                        <td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="off">✗</td><td class="on">✓</td><td class="on">✓</td>
+                        <td>0.000</td><td>0.727</td><td>0.643</td><td class="second">0.926</td>
+                      </tr>
+                      <tr>
+                        <td>Union + Gate</td>
+                        <td class="off">✗</td><td class="on">✓</td><td class="off">✗</td><td class="off">✗</td><td class="on">✓</td><td class="on">✓</td>
+                        <td>0.000</td><td>0.750</td><td>0.750</td><td>0.000</td>
+                      </tr>
+                      <tr class="ours">
+                        <td>MedPhyGraph</td>
+                        <td class="on">✓</td><td class="on">✓</td><td class="on">✓</td><td class="on">✓</td><td class="on">✓</td><td class="on">✓</td>
+                        <td>0.000</td><td class="best">1.000</td><td class="best">1.000</td><td class="best">1.000</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <!-- Stability -->
+          <div class="tab-panel" data-panel="stability" hidden>
+            <div class="table-grid-2">
+              <article class="table-card">
+                <header>
+                  <h3>Multi-seed audit on Isaac under the core 15-transfer protocol</h3>
+                  <p>Transfer Dyn-F1 unless noted.</p>
+                </header>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr><th>Seed</th><th>Indep.</th><th>SC</th><th>MedPhyGraph</th><th>T-Mac.</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>0</td><td>0.545</td><td>0.000</td><td class="best">1.000</td><td class="best">1.000</td></tr>
+                      <tr><td>1</td><td>0.545</td><td>0.000</td><td class="best">1.000</td><td class="best">1.000</td></tr>
+                      <tr><td>2</td><td>0.444</td><td>0.000</td><td class="best">1.000</td><td class="best">1.000</td></tr>
+                      <tr><td>3</td><td>0.444</td><td>0.000</td><td class="best">1.000</td><td class="best">1.000</td></tr>
+                      <tr><td>4</td><td>0.462</td><td>0.000</td><td class="best">1.000</td><td class="best">1.000</td></tr>
+                      <tr class="ours"><td>mean</td><td>0.488</td><td>0.000</td><td class="best">1.000</td><td class="best">1.000</td></tr>
+                      <tr><td>std</td><td>±0.053</td><td>±0.000</td><td>±0.000</td><td>±0.000</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+
+              <article class="table-card">
+                <header>
+                  <h3>Incomplete temporal evidence on the frozen test split</h3>
+                </header>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>ρ</th><th>Edge F1</th></tr></thead>
+                    <tbody>
+                      <tr><td>1.00</td><td class="best">0.957</td></tr>
+                      <tr><td>0.75</td><td>0.957</td></tr>
+                      <tr><td>0.50</td><td>0.945</td></tr>
+                      <tr><td>0.25</td><td>0.957</td></tr>
+                      <tr><td>0.10</td><td>0.909</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+
+              <article class="table-card span-full">
+                <header>
+                  <h3>Inference-time channel masking at ρ=1.0</h3>
+                  <p>Edge F1.</p>
+                </header>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Variant</th><th>Edge F1</th></tr></thead>
+                    <tbody>
+                      <tr class="ours"><td>Full features</td><td class="best">0.957</td></tr>
+                      <tr><td>cf_only</td><td>0.909</td></tr>
+                      <tr><td>geometry_only</td><td>0.778</td></tr>
+                      <tr><td>no_cf_motion</td><td>0.909</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <!-- Bootstrap -->
+          <div class="tab-panel" data-panel="bootstrap" hidden>
+            <article class="table-card">
+              <header>
+                <h3>Paired bootstrap differences (MedPhyGraph minus comparator)</h3>
+                <p>95% confidence intervals from 10,000 seed-0 replicates using base-scene resampling.</p>
+              </header>
+              <div class="table-wrap">
+                <table class="table-compact">
+                  <thead>
+                    <tr>
+                      <th>Corpus</th><th>Comparator</th><th>Metric</th>
+                      <th>Δ mean</th><th>CI low</th><th>CI high</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Isaac</td><td>LR</td><td>T-Mac.</td><td>0.167</td><td>0.063</td><td>0.250</td></tr>
+                    <tr><td>Isaac</td><td>LR</td><td>P-Mic.</td><td>0.154</td><td>0.056</td><td>0.267</td></tr>
+                    <tr><td>Isaac</td><td>LR</td><td>Transfer</td><td>0.667</td><td>0.333</td><td>1.000</td></tr>
+                    <tr><td>Isaac</td><td>RF</td><td>T-Mac.</td><td>0.250</td><td>0.143</td><td>0.357</td></tr>
+                    <tr><td>Isaac</td><td>RF</td><td>P-Mic.</td><td>0.250</td><td>0.143</td><td>0.357</td></tr>
+                    <tr><td>Isaac</td><td>RF</td><td>Transfer</td><td>1.000</td><td>1.000</td><td>1.000</td></tr>
+                    <tr><td>Isaac</td><td>MLP</td><td>T-Mac.</td><td>0.399</td><td>0.312</td><td>0.494</td></tr>
+                    <tr><td>Isaac</td><td>MLP</td><td>P-Mic.</td><td>0.455</td><td>0.357</td><td>0.526</td></tr>
+                    <tr><td>Isaac</td><td>MLP</td><td>Transfer</td><td>1.000</td><td>1.000</td><td>1.000</td></tr>
+                    <tr><td>Isaac</td><td>Indep. CF</td><td>T-Mac.</td><td>0.271</td><td>0.214</td><td>0.333</td></tr>
+                    <tr><td>Isaac</td><td>Indep. CF</td><td>P-Mic.</td><td>0.314</td><td>0.256</td><td>0.364</td></tr>
+                    <tr><td>Isaac</td><td>Indep. CF</td><td>Transfer</td><td>0.444</td><td>0.389</td><td>0.500</td></tr>
+                    <tr><td>Isaac</td><td>CF+SC</td><td>T-Mac.</td><td>0.250</td><td>0.143</td><td>0.357</td></tr>
+                    <tr><td>Isaac</td><td>CF+SC</td><td>P-Mic.</td><td>0.250</td><td>0.143</td><td>0.357</td></tr>
+                    <tr><td>Isaac</td><td>CF+SC</td><td>Transfer</td><td>1.000</td><td>1.000</td><td>1.000</td></tr>
+                    <tr><td>Procedural</td><td>LR</td><td>T-Mac.</td><td>0.056</td><td>0.000</td><td>0.100</td></tr>
+                    <tr><td>Procedural</td><td>LR</td><td>P-Mic.</td><td>0.047</td><td>0.000</td><td>0.087</td></tr>
+                    <tr><td>Procedural</td><td>LR</td><td>Transfer</td><td>0.222</td><td>0.000</td><td>0.400</td></tr>
+                    <tr><td>Procedural</td><td>RF</td><td>T-Mac.</td><td>0.250</td><td>0.167</td><td>0.333</td></tr>
+                    <tr><td>Procedural</td><td>RF</td><td>P-Mic.</td><td>0.250</td><td>0.167</td><td>0.333</td></tr>
+                    <tr><td>Procedural</td><td>RF</td><td>Transfer</td><td>1.000</td><td>1.000</td><td>1.000</td></tr>
+                    <tr><td>Procedural</td><td>MLP</td><td>T-Mac.</td><td>0.250</td><td>0.167</td><td>0.333</td></tr>
+                    <tr><td>Procedural</td><td>MLP</td><td>P-Mic.</td><td>0.250</td><td>0.167</td><td>0.346</td></tr>
+                    <tr><td>Procedural</td><td>MLP</td><td>Transfer</td><td>1.000</td><td>1.000</td><td>1.000</td></tr>
+                    <tr><td>Procedural</td><td>Indep. CF</td><td>T-Mac.</td><td>0.241</td><td>0.197</td><td>0.288</td></tr>
+                    <tr><td>Procedural</td><td>Indep. CF</td><td>P-Mic.</td><td>0.273</td><td>0.231</td><td>0.310</td></tr>
+                    <tr><td>Procedural</td><td>Indep. CF</td><td>Transfer</td><td>0.370</td><td>0.333</td><td>0.400</td></tr>
+                    <tr><td>Procedural</td><td>CF+SC</td><td>T-Mac.</td><td>0.250</td><td>0.154</td><td>0.346</td></tr>
+                    <tr><td>Procedural</td><td>CF+SC</td><td>P-Mic.</td><td>0.250</td><td>0.167</td><td>0.333</td></tr>
+                    <tr><td>Procedural</td><td>CF+SC</td><td>Transfer</td><td>1.000</td><td>1.000</td><td>1.000</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="table-note">
+                On Isaac, CIs for Transition-Macro, Pooled Micro, and Transfer exclude zero against all five comparators.
+                Against Logistic Regression on Procedural, those intervals include zero.
+              </p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="citation">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Citation</h2>
+          <p>If you find MedPhyGraph useful, please cite our work.</p>
+        </div>
+        <div class="cite-box">
+          <button class="copy-btn" type="button" data-copy="bibtex">Copy</button>
+            <pre id="bibtex">@InProceedings{gholizadeh2026medphygraph,
+  author    = {Gholizadeh HamlAbadi, Kamran and Vahdati, Monica and El Saddik, Abdulmotaleb},
+  title     = {MedPhyGraph: Counterfactual Support-Graph Maintenance for Dynamic Built-Environment Digital Twins},
+  booktitle = {Proceedings of the European Conference on Computer Vision (ECCV) Workshops (TwinWorld: Visual Intelligence for Built Environment Digital Twins)},
+  year      = {2026},
+  note      = {To appear}
+}</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <span>© 2026 MedPhyGraph · ECCV 2026 · MCRLab, University of Ottawa</span>
+      <a href="#top">Back to top</a>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
